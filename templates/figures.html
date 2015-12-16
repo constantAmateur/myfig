@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% from 'macros.html' import render_figure %}
+{% block title %} Something from path {% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+  {% for fig in figures | sort(attribute='cdate',reverse=True) %}
+    {{ render_figure(fig) }}
+  {% endfor %}
+{% endblock %}
