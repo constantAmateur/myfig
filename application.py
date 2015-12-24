@@ -73,6 +73,32 @@ def get_object(tgt):
   except:
     return None
 
+def list_dir(path,include_subdirs=True):
+  '''
+  Gets all the figure objects in this directory and the number
+  of figure objects in subdirectories
+  '''
+  ls = os.listdir(path)
+  figures = [x[:-7] for x in ls if not os.path.isdir(x) and x[-7:]=='.figure']
+  figures = [get_object(os.path.join(path,x)) for x in figures]
+  figures = [x for x in figures if x is not None]
+  #Want to return a tuple of (name,num_figs,most_recent_addition) for each directory
+  dirs=[]
+  if include_subdirs:
+    tmp = [x for x in ls if os.path.isdir(x)]
+    for d in tmp:
+      count = 0
+      mod = 0
+      for dir,subdir,files in os.walk(d):
+        fig_files = [x[:-7] for x in files if x[-7:]=='.figure']
+        fig_files = [get_object(os.path.join(dir,x)) for x in fig_files]
+        fig_files = [x for x in fig_files if x is not None]
+        count += len(fig_files)
+        mod = max(mod,max([0]+[os.stat(os.path.join(dir,x.fig)).st_mtime for x in fig_files]))
+      dirs.append((d,count,mod))
+  return dirs+figures
+
+
 @app.route('/ping')
 @login_required
 def pong():
@@ -152,9 +178,7 @@ def explicit(path):
     print tgt
     if os.path.isdir(ftgt):
       #Get figure objects in this directory
-      figures = [x[:-7] for x in os.listdir(ftgt) if x[-7:]=='.figure']
-      figures = [get_object(os.path.join(tgt,x)) for x in figures]
-      figures = [x for x in figures if x is not None]
+      figures = list_dir(ftgt,False)
       print figures
       return render_template('figures.html',figures=figures)
     elif get_object(tgt) is not None:
