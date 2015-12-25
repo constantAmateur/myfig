@@ -16,7 +16,8 @@ login_manager.login_view = 'login'
 app.config['UPLOAD_FOLDER'] = '/home/myoung/tmp/myfig/'
 app.config['OBJECT_SUFFIX'] = '.frag'
 app.config['SECRET_KEY'] = 'hipohopopotomus'
-app.config['USERS']= { 'matt': '$5$rounds=535000$WcOhVvXkz94KQXr5$Iy7SLHFvrBYC5fK8N4Wm88zOHsF5nz45S0KRkn8fB2C'}
+app.config['USERS']= { 'matt': '$5$rounds=535000$SSGoGmDLQItn92.p$RcJAh7OTk/1oMw5IL9Usz6PERUu6FJB0BwS0x1JVh01'}
+app.config['PROPAGATE_EXCEPTIONS'] = True
 app.debug = True
 
 def get_host(ip):
@@ -73,6 +74,32 @@ def get_object(tgt):
   except:
     return None
 
+def list_dir(path,include_subdirs=True):
+  '''
+  Gets all the figure objects in this directory and the number
+  of figure objects in subdirectories
+  '''
+  ls = os.listdir(path)
+  figures = [x[:-7] for x in ls if not os.path.isdir(x) and x[-7:]=='.figure']
+  figures = [get_object(os.path.join(path,x)) for x in figures]
+  figures = [x for x in figures if x is not None]
+  #Want to return a tuple of (name,num_figs,most_recent_addition) for each directory
+  dirs=[]
+  if include_subdirs:
+    tmp = [x for x in ls if os.path.isdir(x)]
+    for d in tmp:
+      count = 0
+      mod = 0
+      for dir,subdir,files in os.walk(d):
+        fig_files = [x[:-7] for x in files if x[-7:]=='.figure']
+        fig_files = [get_object(os.path.join(dir,x)) for x in fig_files]
+        fig_files = [x for x in fig_files if x is not None]
+        count += len(fig_files)
+        mod = max(mod,max([0]+[os.stat(os.path.join(dir,x.fig)).st_mtime for x in fig_files]))
+      dirs.append((d,count,mod))
+  return dirs+figures
+
+
 @app.route('/ping')
 @login_required
 def pong():
@@ -80,10 +107,10 @@ def pong():
 
 @app.route('/', defaults={'path':''},methods=['POST','GET'])
 @app.route('/<path:path>',methods=['POST','GET'])
-#@login_required
+@login_required
 def explicit(path):
   #Serve the specific object if it's there
-  print request,path
+  print request,path,request.method
   #Check that it's not one of the protected file types.  In production this should be handled by nginx and we should never see these.  But for testing...
   if path[-7:]=='.figure' or path[-6:]=='.mdata' or path[-5:]=='.code':
     return send_from_directory(app.config['UPLOAD_FOLDER'],path)
@@ -152,9 +179,7 @@ def explicit(path):
     print tgt
     if os.path.isdir(ftgt):
       #Get figure objects in this directory
-      figures = [x[:-7] for x in os.listdir(ftgt) if x[-7:]=='.figure']
-      figures = [get_object(os.path.join(tgt,x)) for x in figures]
-      figures = [x for x in figures if x is not None]
+      figures = list_dir(ftgt,False)
       print figures
       return render_template('figures.html',figures=figures)
     elif get_object(tgt) is not None:
@@ -199,21 +224,27 @@ def load_user_from_request(request):
  
 @app.route('/login', methods=['GET','POST'])
 def login():
+  print request.url
+  print request.referrer
   if request.method == 'GET':
-    return render_template('login.html')
+    return render_template('login.html',next=request.args.get('next'))
   elif request.method == 'POST':
     #Validate login before proceeding
+    print request.form
     username = request.form['email']
     password = request.form['pw']
     if username in app.config['USERS'] and pwhash.verify(password,app.config['USERS'][username]):
       user = User(username,password)
       login_user(user)
-      forward = request.args.get('next')
+      print request.args
+      forward = request.form.get('next')
       print forward
       #if not next_is_valid(forward):
       #  return abort(400)
-      return redirect(forward or url_for('default'))
-  return redirect(url_for('login'))
+      return redirect(forward or url_for('explicit'))
+      #return redirect('/a/b/c/')
+    return redirect(url_for('login',next=request.form['next']))
+  return None
 
 @app.route('/logout')
 @login_required
