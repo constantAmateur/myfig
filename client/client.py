@@ -30,7 +30,7 @@ if config is None:
 def validate_host(host,api_key):
   #Try and connect to the host and get a sensible resopnose
   try:
-    ret = requests.get(host+'/ping',params={'api_key':api_key})
+    ret = requests.get(host+'/ping',params={'api_key':api_key},verify=False)
     if getattr(ret,'content','') == 'pong':
       return True
     return False
@@ -112,7 +112,7 @@ def send_to_server(target,fig,md,code=None):
   if code is not None:
     files['code'] = open(code,'rb')
   #Now curl them off
-  ret = requests.post(config['host']+endpoint,files=files,params={'api_key':config['api_key']})
+  ret = requests.post(config['host']+endpoint,files=files,params={'api_key':config['api_key']},verify=False)
   #Kill code temporary file if it exists
   if code is not None:
     files['code'].close()
