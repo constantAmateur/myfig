@@ -1,8 +1,17 @@
-<html>
-  <head>
-    <title> Figures in {{ tgt }} </title>
-  </head>
-  <body>
-    <p> The actual file listings will go here... </p>
-  </body>
-</html>
+{% extends "base.html" %}
+{% from 'macros.html' import render_figure %}
+{% from 'macros.html' import render_directory %}
+{% block title %} Something from path {% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+  <a href='..'>
+    <h3>..</h3>
+  </a>
+  {% for dir in listing.dirs | sort(attribute=cdate,reverse=True) %}
+    {{ render_directory(dir) }}
+  {% endfor %}
+  {% for fig in listing.figures | sort(attribute='cdate',reverse=True) %}
+    {{ render_figure(fig) }}
+  {% endfor %}
+{% endblock %}

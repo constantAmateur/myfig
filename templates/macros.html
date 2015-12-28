@@ -1,3 +1,13 @@
+{% macro render_directory(obj) -%}
+  <div class='directory'>
+    <div class='header'>
+      <a href="{{ obj.url }}">
+        <h3> {{ obj.name }} ({{ obj.count }} Figures) </h3>
+      </a>
+    </div>
+  </div>
+{%- endmacro %}
+
 {% macro render_figure(obj) -%}
   <div class='figure'>
     <div class='header'>

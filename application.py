@@ -62,6 +62,42 @@ class Figure(object):
     else:
       self.code = None
  
+class Directory(object):
+  '''
+  A folder.
+  '''
+  def __init__(self,path,include_subdirs=True):
+    self.path = path
+    self.ls = os.listdir(path)
+    figures = [x[:-7] for x in self.ls if not os.path.isdir(x) and x[-7:]=='.figure']
+    figures = [get_object(os.path.join(path,x)) for x in figures]
+    figures = [x for x in figures if x is not None]
+    self.figures = figures
+    self.cdate = max([x.cdate for x in figures])
+    self.count = len(self.figures)
+    self.route = os.path.relpath(path,app.config['UPLOAD_FOLDER'])
+    if self.route == '.':
+      self.route = '/'
+    self.url = url_for('explicit',path=self.route)
+    #Add trailing slash for good measure
+    #if self.url[-1] != '/':
+    #  self.url =self.url +'/'
+    print self.route,self.url
+    self.dirs=[]
+    if include_subdirs:
+      print path,self.ls
+      tmp = [os.path.join(path,x) for x in self.ls if os.path.isdir(os.path.join(path,x))]
+      print tmp
+      for d in tmp:
+        dd=Directory(d)
+        dd.name=os.path.relpath(d,self.path)
+        #Update the most recently modified date to be the max of all sub-folders
+        if dd.cdate > self.cdate:
+          self.cdate = dd.cdate
+        #Add in the count for figures in sub-directories
+        self.count += dd.count
+        self.dirs.append(dd)
+ 
 
 def get_object(tgt):
   '''
@@ -80,14 +116,19 @@ def list_dir(path,include_subdirs=True):
   of figure objects in subdirectories
   '''
   ls = os.listdir(path)
+  print 'HELLO EVERYBODY!',ls
   figures = [x[:-7] for x in ls if not os.path.isdir(x) and x[-7:]=='.figure']
   figures = [get_object(os.path.join(path,x)) for x in figures]
   figures = [x for x in figures if x is not None]
+  print figures,include_subdirs
   #Want to return a tuple of (name,num_figs,most_recent_addition) for each directory
   dirs=[]
   if include_subdirs:
-    tmp = [x for x in ls if os.path.isdir(x)]
+    print path,ls
+    tmp = [os.path.join(path,x) for x in ls if os.path.isdir(os.path.join(path,x))]
+    print tmp
     for d in tmp:
+      print d
       count = 0
       mod = 0
       for dir,subdir,files in os.walk(d):
@@ -96,6 +137,7 @@ def list_dir(path,include_subdirs=True):
         fig_files = [x for x in fig_files if x is not None]
         count += len(fig_files)
         mod = max(mod,max([0]+[os.stat(os.path.join(dir,x.fig)).st_mtime for x in fig_files]))
+      print count,mod
       dirs.append((d,count,mod))
   return dirs+figures
 
@@ -106,7 +148,7 @@ def pong():
   return 'pong'
 
 @app.route('/', defaults={'path':''},methods=['POST','GET'])
-@app.route('/<path:path>',methods=['POST','GET'])
+@app.route('/<path:path>/',methods=['POST','GET'])
 @login_required
 def explicit(path):
   #Serve the specific object if it's there
@@ -179,11 +221,11 @@ def explicit(path):
     print tgt
     if os.path.isdir(ftgt):
       #Get figure objects in this directory
-      figures = list_dir(ftgt,False)
-      print figures
-      return render_template('figures.html',figures=figures)
+      listing = Directory(ftgt,True)
+      print listing
+      return render_template('directory.html',listing=listing)
     elif get_object(tgt) is not None:
-      return render_template('figures.html',figures=[get_object(tgt)])
+      return render_template('figure.html',figure=get_object(tgt))
     else:
       abort(404)
 

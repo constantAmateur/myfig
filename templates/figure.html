@@ -4,7 +4,5 @@
 {% block head %}
 {% endblock %}
 {% block content %}
-  {% for fig in figures | sort(attribute='cdate',reverse=True) %}
-    {{ render_figure(fig) }}
-  {% endfor %}
+  {{ render_figure(figure) }}
 {% endblock %}
