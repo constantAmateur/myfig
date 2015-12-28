@@ -100,7 +100,7 @@ def myfig(target,src=None,caption='Created by myfig python client.',format=None,
   #Send to remote, trying to save current history as code
   if code is None:
     code = get_history()
-  send_to_server(target,tmpf,mdf,code)
+  return send_to_server(target,tmpf,mdf,code)
 
 def send_to_server(target,fig,md,code=None):
   #Where to send
