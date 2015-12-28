@@ -18,7 +18,7 @@ app.config['OBJECT_SUFFIX'] = '.frag'
 app.config['SECRET_KEY'] = 'hipohopopotomus'
 app.config['USERS']= { 'matt': '$5$rounds=535000$SSGoGmDLQItn92.p$RcJAh7OTk/1oMw5IL9Usz6PERUu6FJB0BwS0x1JVh01'}
 app.config['PROPAGATE_EXCEPTIONS'] = True
-app.debug = True
+app.debug = False
 
 def get_host(ip):
   try:
@@ -73,7 +73,7 @@ class Directory(object):
     figures = [get_object(os.path.join(path,x)) for x in figures]
     figures = [x for x in figures if x is not None]
     self.figures = figures
-    self.cdate = max([x.cdate for x in figures])
+    self.cdate = max([x.cdate for x in figures]) if len(figures)!=0 else None
     self.count = len(self.figures)
     self.route = os.path.relpath(path,app.config['UPLOAD_FOLDER'])
     if self.route == '.':
