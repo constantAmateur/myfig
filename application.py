@@ -75,8 +75,8 @@ class Directory(object):
       self.route = '/'
     self.url = url_for('explicit',path=self.route)
     #Add trailing slash for good measure
-    #if self.url[-1] != '/':
-    #  self.url =self.url +'/'
+    if self.url[-1] != '/':
+      self.url =self.url +'/'
     print self.route,self.url
     self.dirs=[]
     if include_subdirs:
@@ -143,7 +143,7 @@ def pong():
   return 'pong'
 
 @app.route('/', defaults={'path':''},methods=['POST','GET'])
-@app.route('/<path:path>/',methods=['POST','GET'])
+@app.route('/<path:path>',methods=['POST','GET'])
 @login_required
 def explicit(path):
   #Serve the specific object if it's there
@@ -215,6 +215,10 @@ def explicit(path):
     ftgt = os.path.join(app.config['UPLOAD_FOLDER'],path)
     print tgt
     if os.path.isdir(ftgt):
+      #If it's a directory, should end in a slash, redirect if it doesn't
+      if path[-1]!='/'
+        print 'Missing trailing slash on directory, redirecting...'
+        redirect(url_for('explicit',path=path+'/',**request.args))
       #Get figure objects in this directory
       listing = Directory(ftgt,True)
       print listing
