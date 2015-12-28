@@ -5,9 +5,11 @@
 {% block head %}
 {% endblock %}
 {% block content %}
-  <a href='..'>
-    <h3>..</h3>
-  </a>
+  {% if request.path != "/" %}
+    <a href='..'>
+      <h3>..</h3>
+    </a>
+  {% endif %}
   {% for dir in listing.dirs | sort(attribute=cdate,reverse=True) %}
     {{ render_directory(dir) }}
   {% endfor %}
