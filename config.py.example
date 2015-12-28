@@ -1,0 +1,12 @@
+UPLOAD_FOLDER = '/home/myoung/tmp/myfig/'
+OBJECT_SUFFIX = '.frag'
+SECRET_KEY = 'hiphopopotomus'
+#To generate the hashed password run...
+#from passlib.hash import sha256_crypt as pwhash
+#pwhash.encrypt('test') 
+#where you replace 'test' with whatever you want your password to be...
+USERS = {'matt':'$5$rounds=535000$Qxnd4k4kWUY7TJFz$zegidLJc.oHdWy1DyIAGznfQiky8vYdIP3KwIuebu.C'}
+PROPAGATE_EXCEPTIONS = True
+#Never run with debug in production
+debug = False
+

@@ -13,12 +13,7 @@ app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
 login_manager.login_view = 'login'
-app.config['UPLOAD_FOLDER'] = '/home/myoung/tmp/myfig/'
-app.config['OBJECT_SUFFIX'] = '.frag'
-app.config['SECRET_KEY'] = 'hipohopopotomus'
-app.config['USERS']= { 'matt': '$5$rounds=535000$SSGoGmDLQItn92.p$RcJAh7OTk/1oMw5IL9Usz6PERUu6FJB0BwS0x1JVh01'}
-app.config['PROPAGATE_EXCEPTIONS'] = True
-app.debug = False
+app.config.from_object('config')
 
 def get_host(ip):
   try:
