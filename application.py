@@ -147,6 +147,7 @@ def pong():
 @login_required
 def explicit(path):
   #Serve the specific object if it's there
+  print "We're making a request for a path object."
   print request,path,request.method
   #Check that it's not one of the protected file types.  In production this should be handled by nginx and we should never see these.  But for testing...
   if path[-7:]=='.figure' or path[-6:]=='.mdata' or path[-5:]=='.code':
@@ -216,7 +217,7 @@ def explicit(path):
     print tgt
     if os.path.isdir(ftgt):
       #If it's a directory, should end in a slash, redirect if it doesn't
-      if path[-1]!='/'
+      if path=='' or path[-1]!='/':
         print 'Missing trailing slash on directory, redirecting...'
         redirect(url_for('explicit',path=path+'/',**request.args))
       #Get figure objects in this directory
