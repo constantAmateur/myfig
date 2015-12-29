@@ -1,12 +1,16 @@
+#Folder to store all the figures in.  Must be writeable by the user who runs myfig
 UPLOAD_FOLDER = '/home/myoung/tmp/myfig/'
+#Suffix added to all plot files.  Ignore for now
 OBJECT_SUFFIX = '.frag'
+#A secret key used to salt passwords and the like.  Set it to something secret and random
 SECRET_KEY = 'hiphopopotomus'
+#A dicitionary containing the valid username/hashed-password combination
 #To generate the hashed password run...
 #from passlib.hash import sha256_crypt as pwhash
 #pwhash.encrypt('test') 
 #where you replace 'test' with whatever you want your password to be...
 USERS = {'matt':'$5$rounds=535000$Qxnd4k4kWUY7TJFz$zegidLJc.oHdWy1DyIAGznfQiky8vYdIP3KwIuebu.C'}
+#Useful if you're serving with uwsgi for debugging.  Ignore this unless you know what you're doing.
 PROPAGATE_EXCEPTIONS = True
 #Never run with debug in production
 debug = False
-
