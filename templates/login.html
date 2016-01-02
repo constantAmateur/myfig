@@ -1,6 +1,14 @@
+{% extends "base.html" %}
+{% from 'macros.html' import render_figure %}
+{% block title %} Login to view figures {% endblock %}
+{% block head %}
+{% endblock %}
+{% block content %}
+Your usual young wolf credentials will be accepted...
 <form action='login' method='POST'>
- <input type='text' name='email' id='email' placeholder='email'></input>
+ <input type='text' name='email' id='email' placeholder='username'></input>
  <input type='password' name='pw' id='pw' placeholder='password'></input>
  <input type='submit' name='submit'></input>
  <input type=hidden value="{{ next or '' }}" name=next>
 </form>
+{% endblock %}
