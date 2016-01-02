@@ -10,7 +10,7 @@
       <h3>..</h3>
     </a>
   {% endif %}
-  {% for dir in listing.dirs | sort(attribute=cdate,reverse=True) %}
+  {% for dir in listing.dirs | sort(attribute='cdate',reverse=True) %}
     {{ render_directory(dir) }}
   {% endfor %}
   {% for fig in listing.figures | sort(attribute='cdate',reverse=True) %}
