@@ -29,7 +29,7 @@ myfig has two parts. The server, which runs on the machine you want to store you
 
 The first thing you should do is to checkout the git repository with:
 
-    git clone ...
+    git clone https://github.com/constantAmateur/myfig.git
 
 myfig is written in the python microframework Flask and so requires the python flask module (and the flask-login module) to work.  The passlib module is also needed.  The recommended way to deal with these dependencies is to create a virtual machine in the myfig directory, activate it and ensure the dependencies are installed.
 
