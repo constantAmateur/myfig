@@ -1,0 +1,121 @@
+body {
+  background-color: rgb(235, 235, 228);
+  font-size: 100%;
+}
+
+.panel {
+  margin: auto;
+  width: 80%;
+}
+
+.plot a {
+  width:100%
+}
+
+.plot img {
+  width:100%
+}
+
+.fig-nav.top-bar{
+  background:none;
+  margin-top:10px;
+}
+
+.fig-nav.top-bar .name {
+  font-size: 2rem;
+}
+
+.fig-nav.top-bar .top-bar-section ul.right {
+  border-left: solid 1px lightgrey;
+}
+
+.fig-nav.top-bar .top-bar-section li {
+  background:none;
+}
+
+.fig-nav.top-bar .top-bar-section a {
+  background:none !important;
+}
+
+.fig-nav.top-bar i {
+  font-size: 2rem;
+  color: black;
+}
+
+/*
+.panel.radius div.container {
+  margin-top: 10px;
+}
+
+.panel.radius div.container div.small-3.columns {
+  border-left: solid 1px lightgrey;
+}
+
+.panel.radius div.container i {
+  font-size: 2rem;
+  color: black;
+}
+
+.panel.radius .container .row {
+  max-width: 100%;
+}
+
+/*
+.figure .footer {
+  background-color: #FAFAFD;
+  min-width: 100%;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
+  border-top: none;
+  color: #777;
+}
+
+.figure .footer .top {
+  width: 100%;
+}
+
+.figure .footer .top .title {
+  text-align:left;
+  width:99%;
+  white-space:nowrap;
+}
+
+.figure .footer .top .nav {
+  text-align:right;
+  border-left: solid 2px black;
+  white-space: nowrap;
+}
+
+.figure .footer .nav {
+  display: -webkit-flex;
+  display: flex;
+  width:100%;
+}
+
+.figure .footer .nav .title {
+  text-align: center;
+  text-overflow: ellipsis;
+  overflow:hidden;
+  white-space:nowrap;
+  margin: 10px;
+}
+
+.figure .footer .nav .links {
+  border-left: solid 2px black;
+  margin: 10px;
+  width:100px;
+  white-space:nowrap;
+}
+
+.download-link {
+  background-image:url(icons/PNG/dark/24px/24_download.png);
+  height:24px;
+  width:24px;
+  text-indent:-9999px;
+}
+
+.box {
+  display:inline-block;
+}
+*/

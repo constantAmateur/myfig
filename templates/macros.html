@@ -9,32 +9,77 @@
 {%- endmacro %}
 
 {% macro render_figure(obj) -%}
-  <div class='figure'>
-    <div class='header'>
-      <h3> {{ obj.name }} </h3>
-    </div>
-    <div class='core'>
+  <div class='panel radius'>
+    <div class='plot'>
       {% if obj.ftype == '.html' %}
         {{ obj.fig_fh.read()|safe }}
       {% else %}
-        <img src="{{ obj.fig }}"></img>
+        <a href='#' class='th'>
+          <img src="{{ obj.fig }}" alt="{{ obj.name }}">
+        </a>
       {% endif %}
     </div>
-    <div class='caption'>
-      <p> 
-        <b>Caption:</b>
-        {{ obj.mdata['client'].get('caption','') }}
-      </p>
-      <small> 
-        <p>
-          Added by {{ obj.mdata['server'].get('source','Unknown') }} at {{ obj.mdata['server']['cdate'] }} 
-        </p>
-        {% if obj.code %}
-          <p>
-            <a href="{{ obj.code }}">Download figure source code.</a>
-          </p>
-        {% endif %}
-      </small>
+    <div class='container'>
+
+      <nav class='top-bar fig-nav'>
+        <ul class='title-area'>
+          <li class='name'>
+            {{ obj.name }}
+          </li>
+        </ul>
+        <section class='top-bar-section'>
+          <ul class='right'>
+            {% if obj.code %}
+            <li><a href="{{ obj.code }}"><i class='fi-book'</i></a></li>
+            {% endif %}
+            {% if obj.ftype != '.html' %}
+              <li><a href="{{ obj.fig }}"><i class='fi-download'></i></a></li>
+              <li><a href="{{ obj.fig }}"><i class='fi-download'></i></a></li>
+              <li><a href="{{ obj.fig }}"><i class='fi-download'></i></a></li>
+            {% endif %}
+          </ul>
+        </section>
+      </nav>
+ 
+<!--
+      <div class='row'>
+        <div class='small-9 columns'>
+          <h3 class='subheader'>
+           {{ obj.name }}
+         </h3>
+        </div>
+        <div class='small-3 columns'>
+            {% if obj.code %}
+              <a href="{{ obj.code }}"><i class='fi-book'</i></a>
+            {% endif %}
+            {% if obj.ftype != '.html' %}
+              <a href="{{ obj.fig }}"><i class='fi-download'></i></a>
+              <a href="{{ obj.fig }}"><i class='fi-download'></i></a>
+              <a href="{{ obj.fig }}"><i class='fi-download'></i></a>
+            {% endif %}
+        </div>
+      </div>
+-->
+      <hr>
+
+        <!--<span class='title'>
+          {{ obj.name }} 
+        </span>
+        <span class='nav'>
+          {% if obj.code %}
+            <a href="{{ obj.code }}">Code</a>
+          {% endif %}
+          {% if obj.ftype != '.html' %}
+            <a href="{{ obj.fig }}" class='download-link' title='Download'></a>
+            <a href="{{ obj.fig }}" class='download-link' title='Download'></a>
+          {% endif %}
+        </span>-->
+      <div class='bottom'>
+          /*Added by {{ obj.mdata['server'].get('source','Unknown') }} at {{ obj.mdata['server']['cdate'] }} */
+        <div class='caption'>
+          {{ obj.mdata['client'].get('caption','') }}
+        </div>
+      </div>
     </div>
   </div>
 {%- endmacro %}

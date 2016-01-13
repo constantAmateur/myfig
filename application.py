@@ -136,6 +136,9 @@ def list_dir(path,include_subdirs=True):
       dirs.append((d,count,mod))
   return dirs+figures
 
+#@app.route('/static/<path:path>')
+#def static(path):
+#  return send_from_directory('static',path)
 
 @app.route('/ping')
 @login_required
@@ -146,6 +149,8 @@ def pong():
 @app.route('/<path:path>',methods=['POST','GET'])
 @login_required
 def explicit(path):
+  #if not current_user.is_authenticated:
+  #  return current_app.login_manager.unauthorized()
   #Serve the specific object if it's there
   print "We're making a request for a path object."
   print request,path,request.method
