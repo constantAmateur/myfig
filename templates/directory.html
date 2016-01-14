@@ -5,14 +5,44 @@
 {% block head %}
 {% endblock %}
 {% block content %}
-  {% if request.path != "/" %}
-    <a href='..'>
-      <h3>..</h3>
-    </a>
-  {% endif %}
-  {% for dir in listing.dirs | sort(attribute='cdate',reverse=True) %}
-    {{ render_directory(dir) }}
-  {% endfor %}
+  <div class="panel radius">
+    <nav class='breadcrumbs'>
+      <li class='root' data-tooltip title='Root level'><a href="{{ url_for('explicit',path='/') }}">/</a></li>
+      {% if crumbs|length != 0 %}
+        {% if crumbs|length == 1 %}
+          <li class='post-root current'><a href='{{ crumbs[0][1] }}'>{{ crumbs[0][0] }}</a></li>
+        {% else %}
+          <li class='post-root'><a href='{{ crumbs[0][1] }}'>{{ crumbs[0][0] }}</a></li>
+          {% for crumb in crumbs[1:-1] %}
+            <li><a href='{{ crumb[1] }}'>{{ crumb[0] }}</a></li>
+          {% endfor %}
+          <li class='current'><a href='{{ crumbs[-1][1] }}'>{{ crumbs[-1][0] }}</a></li>
+        {% endif %}
+      {% endif %}
+    </nav>
+    <hr>
+    <table class='directories'>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th># Figures</th>
+          <th>Last modified</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% if request.path != "/" %}
+          <tr>
+            <th><a href="..">..</a></th>
+            <th> -- </th>
+            <th> -- </th>
+          </tr>
+        {% endif %}
+        {% for dir in listing.dirs | sort(attribute='cdate',reverse=True) %}
+          {{ render_directory(dir) }}
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
   {% for fig in listing.figures | sort(attribute='cdate',reverse=True) %}
     {{ render_figure(fig) }}
   {% endfor %}

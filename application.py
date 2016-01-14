@@ -92,6 +92,18 @@ class Directory(object):
         #Add in the count for figures in sub-directories
         self.count += dd.count
         self.dirs.append(dd)
+
+  def calculate_crumbs(self):
+    '''
+    Returns a list of the elements and their urls
+    '''
+    dirs = [ x for x in self.route.split('/') if x!='']
+    out = []
+    for i,dd in enumerate(dirs):
+      out.append([dd,'/'.join(['']+dirs[:i+1]+[''])])
+    return out
+      
+
  
 
 def get_object(tgt):
@@ -228,7 +240,8 @@ def explicit(path):
       #Get figure objects in this directory
       listing = Directory(ftgt,True)
       print listing
-      return render_template('directory.html',listing=listing)
+      print listing.calculate_crumbs()
+      return render_template('directory.html',listing=listing,crumbs=listing.calculate_crumbs())
     elif get_object(tgt) is not None:
       return render_template('figure.html',figure=get_object(tgt))
     else:

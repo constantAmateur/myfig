@@ -10,6 +10,9 @@
   <script>
 $(document).ready(function() {
     $(document).foundation();
+    $(".fig-nav .extra-info-toggle").click(function() {
+      $(this).closest('.container').find('.extra-info').toggle('slow')
+      });
 })
 </script>
     {% block head %}

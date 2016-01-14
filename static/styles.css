@@ -1,7 +1,30 @@
 body {
-  background-color: rgb(235, 235, 228);
-  font-size: 100%;
+  background-color: white !important;
 }
+
+/* Make JS Icons look clickable */
+.extra-info-toggle {
+  cursor: pointer;
+}
+
+/* Suppress / in first-level of bread-crumbs */
+.breadcrumbs > .post-root:before {
+  content: "";
+  margin: 0;
+}
+
+.breadcrumbs .root a {
+  padding: 0 0.6rem;
+}
+
+/* Prevent upper-casing */
+
+.breadcrumbs > li {
+  text-transform:none;
+  font-size: 1rem;
+}
+
+
 
 .panel {
   margin: auto;

@@ -1,15 +1,22 @@
 {% macro render_directory(obj) -%}
-  <div class='directory'>
-    <div class='header'>
-      <a href="{{ obj.url }}">
-        <h3> {{ obj.name }} ({{ obj.count }} Figures) </h3>
-      </a>
-    </div>
+  <tr>
+    <th><a href="{{ obj.url }}">{{ obj.name }}</a></th>
+    <th> {{ obj.count }} </th>
+    <th> {{ obj.cdate }} </th>
+  </tr>
+ 
+  <!--
+  <div class='row'>
+    <div class='small-2 columns'> {{ obj.count }} </div>
+    <div class='small-3 columns'> Jan 12 19:51 </div>
+    <div class='small-7 columns'><a href="{{ obj.url }}">{{ obj.name }}</a></div>
   </div>
+  -->
 {%- endmacro %}
 
 {% macro render_figure(obj) -%}
   <div class='panel radius'>
+    <!-- The actual plot -->
     <div class='plot'>
       {% if obj.ftype == '.html' %}
         {{ obj.fig_fh.read()|safe }}
@@ -19,8 +26,11 @@
         </a>
       {% endif %}
     </div>
+
+    <!-- The container at the bottom -->
     <div class='container'>
 
+      <!-- Title and links -->
       <nav class='top-bar fig-nav'>
         <ul class='title-area'>
           <li class='name'>
@@ -33,53 +43,25 @@
             <li><a href="{{ obj.code }}"><i class='fi-book'</i></a></li>
             {% endif %}
             {% if obj.ftype != '.html' %}
-              <li><a href="{{ obj.fig }}"><i class='fi-download'></i></a></li>
-              <li><a href="{{ obj.fig }}"><i class='fi-download'></i></a></li>
-              <li><a href="{{ obj.fig }}"><i class='fi-download'></i></a></li>
+              <li><a href="{{ obj.fig }}" data-tooltip title='Download figure.'><i class='fi-download'></i></a></li>
+              <li><i class='fi-info extra-info-toggle' data-tooltip title='Toggle extra info.'></i></a></li>
+              <li><a href="" data-tooltip title='Link to this figure.'><i class='fi-link'></i></a></li>
             {% endif %}
           </ul>
         </section>
       </nav>
  
-<!--
-      <div class='row'>
-        <div class='small-9 columns'>
-          <h3 class='subheader'>
-           {{ obj.name }}
-         </h3>
-        </div>
-        <div class='small-3 columns'>
-            {% if obj.code %}
-              <a href="{{ obj.code }}"><i class='fi-book'</i></a>
-            {% endif %}
-            {% if obj.ftype != '.html' %}
-              <a href="{{ obj.fig }}"><i class='fi-download'></i></a>
-              <a href="{{ obj.fig }}"><i class='fi-download'></i></a>
-              <a href="{{ obj.fig }}"><i class='fi-download'></i></a>
-            {% endif %}
-        </div>
-      </div>
--->
       <hr>
 
-        <!--<span class='title'>
-          {{ obj.name }} 
-        </span>
-        <span class='nav'>
-          {% if obj.code %}
-            <a href="{{ obj.code }}">Code</a>
-          {% endif %}
-          {% if obj.ftype != '.html' %}
-            <a href="{{ obj.fig }}" class='download-link' title='Download'></a>
-            <a href="{{ obj.fig }}" class='download-link' title='Download'></a>
-          {% endif %}
-        </span>-->
-      <div class='bottom'>
-          /*Added by {{ obj.mdata['server'].get('source','Unknown') }} at {{ obj.mdata['server']['cdate'] }} */
-        <div class='caption'>
-          {{ obj.mdata['client'].get('caption','') }}
-        </div>
+      <div class='extra-info' style='display:none;'>
+        Added by {{ obj.mdata['server'].get('source','Unknown') }} at {{ obj.mdata['server']['cdate'] }}. 
+        <hr>
       </div>
+
+      <div class='caption'>
+        {{ obj.mdata['client'].get('caption','') }}
+      </div>
+
     </div>
   </div>
 {%- endmacro %}
