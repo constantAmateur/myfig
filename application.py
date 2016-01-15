@@ -100,7 +100,7 @@ class Directory(object):
         dd=Directory(d)
         dd.name=os.path.relpath(d,self.path)
         #Update the most recently modified date to be the max of all sub-folders
-        if dd.cdate > self.cdate:
+        if self.cdate is None or dd.cdate > self.cdate:
           self.cdate = dd.cdate
         #Add in the count for figures in sub-directories
         self.count += dd.count

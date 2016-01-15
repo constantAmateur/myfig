@@ -18,7 +18,7 @@ $(document).ready(function() {
     var sort_opts = ["Name","Date","Format"];
     var i;
     $("#main-nav .top-bar-section .dropdown li a").click(function() {
-      //Hide currently active 
+      //Hide currently active, set new sort 
       for (i = 0; i < sort_opts.length; i++) {
         if( $(this).text() === sort_opts[i] ) {
           $("#sort-".concat(sort_opts[i])).show();
@@ -26,6 +26,8 @@ $(document).ready(function() {
           $("#sort-".concat(sort_opts[i])).hide();
         }
       }
+      //Update header
+      $("#main-nav .top-bar-section .has-dropdown > a").text("Sort by | ".concat($(this).text()))
       return false;
     });
     $("#reverse-sort").click(function() {
