@@ -9,6 +9,7 @@ from passlib.hash import sha256_crypt as pwhash
 import os, json
 import socket
 from datetime import datetime as dt
+import humanize
 app = Flask(__name__)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -18,9 +19,9 @@ app.config.from_object('config')
 def get_host(ip):
   try:
     tmp=socket.gethostbyaddr(ip)[0]
+    return '%s (%s)'%(tmp,ip)
   except:
-    tmp='Unknown'
-  return '%s (%s)'%(tmp,ip)
+    return '(%s)'%ip
 
 def valid_payload(uploaded):
   if uploaded is None:
@@ -34,13 +35,21 @@ class Figure(object):
   A figure object is a collection of a figure, some metadata and some code.
   '''
   def __init__(self,tgt):
+    print 'Target is %s'%tgt
+    print 'Config dir is %s'%app.config['UPLOAD_FOLDER']
     self.target = tgt
     self.file_target = os.path.join(app.config['UPLOAD_FOLDER'],tgt)
+    print 'File target is %s'%self.file_target
     self.name = os.path.basename(tgt)
     self.ftype = os.path.splitext(self.name)[1]
     self.load_object()
+    #Get the route for this object
+    self.route = os.path.relpath(self.file_target,app.config['UPLOAD_FOLDER'])
+    if self.route == '.':
+      self.route = '/'
     #Make certain metadata objects first class objects
-    self.cdate = self.mdata['server']['cdate']
+    self.cdate = dt.strptime(self.mdata['server']['cdate'],"%Y-%m-%d %H:%M:%S.%f")
+    #self.cdate = self.mdata['server']['cdate']
 
   def load_object(self):
     if os.path.exists(self.file_target+'.figure'):
@@ -56,6 +65,10 @@ class Figure(object):
       self.code = self.name+'.code'
     else:
       self.code = None
+
+  def human_time(self):
+    return humanize.naturaldelta(dt.now()-self.cdate)
+
  
 class Directory(object):
   '''
@@ -102,8 +115,9 @@ class Directory(object):
     for i,dd in enumerate(dirs):
       out.append([dd,'/'.join(['']+dirs[:i+1]+[''])])
     return out
-      
 
+  def human_time(self):
+    return humanize.naturaldelta(dt.now()-self.cdate)
  
 
 def get_object(tgt):
@@ -188,11 +202,13 @@ def explicit(path):
       print code
       #Add any extra metadata
       mdata = {'server':{},'client':mdata}
-      mdata['server']['cdate']=str(dt.now())
+      mdata['server']['cdate']=dt.now()
+      mdata['server']['user']=current_user.id
+      mdata['server']['source'] = get_host(request.remote_addr)
       mdata['server']['uploaded_names']={'figure':figure.filename,
               'mdata':uploaded['mdata'].filename if 'mdata' in uploaded else None,
-              'code':code.filename if code is not None else None,
-              'source':get_host(request.remote_addr)}
+              'code':code.filename if code is not None else None
+              }
       print mdata
       #Create storage names for all the files
       fnom = secure_filename(figure.filename)
@@ -291,7 +307,7 @@ def login():
   elif request.method == 'POST':
     #Validate login before proceeding
     print request.form
-    username = request.form['email']
+    username = request.form['user']
     password = request.form['pw']
     if username in app.config['USERS'] and pwhash.verify(password,app.config['USERS'][username]):
       user = User(username,password)

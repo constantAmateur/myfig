@@ -2,10 +2,36 @@
 {% from 'macros.html' import render_figure %}
 {% from 'macros.html' import render_directory %}
 {% block title %} Something from path {% endblock %}
-{% block head %}
+{% block header %}
+<div class='sticky' id='main-nav'>
+  <nav class='top-bar' data-topbar data-options="is_hover: false">
+    <ul class="title-area">
+      <li class="name">
+        <h1><a href="{{url_for('explicit',path='/')}}">MYfig</a></h1>
+      </li>
+      <!-- Collapsible Button on small screens: remove the .menu-icon class to get rid of icon. 
+      Remove the "Menu" text if you only want to show the icon -->
+      <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+    </ul>
+    <section class="top-bar-section">
+      <ul class="right">
+        <li class="has-dropdown">
+          <a href="#">Sort by | Date</a>
+          <ul class="dropdown">
+            <li><a href="#">Date</a></li>
+            <li><a href="#">Name</a></li>
+            <li><a href="#">Format</a></li>
+          </ul>
+        </li>
+        <li id='reverse-sort'><a href="#">Reverse</a></li>
+      </ul>
+    </section>
+  </nav>
+</div>
 {% endblock %}
 {% block content %}
-  <div class="panel radius">
+  <div class="panel radius directories">
+    <!-- Directory listing -->
     <nav class='breadcrumbs'>
       <li class='root' data-tooltip title='Root level'><a href="{{ url_for('explicit',path='/') }}">/</a></li>
       {% if crumbs|length != 0 %}
@@ -43,7 +69,23 @@
       </tbody>
     </table>
   </div>
-  {% for fig in listing.figures | sort(attribute='cdate',reverse=True) %}
-    {{ render_figure(fig) }}
-  {% endfor %}
+
+  <!-- Figures in this directory -->
+  <div id='figures'>
+    <div id='sort-Date'>
+      {% for fig in listing.figures | sort(attribute='cdate',reverse=True) %}
+        {{ render_figure(fig) }}
+      {% endfor %}
+    </div>
+    <div id='sort-Name' style='display:none;'>
+      {% for fig in listing.figures | sort(attribute='name',reverse=False) %}
+        {{ render_figure(fig) }}
+      {% endfor %}
+    </div>
+    <div id='sort-Format' style='display:none;'>
+      {% for fig in listing.figures | sort(attribute='ftype',reverse=False) %}
+        {{ render_figure(fig) }}
+      {% endfor %}
+    </div>
+  </div>
 {% endblock %}

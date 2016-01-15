@@ -10,9 +10,31 @@
   <script>
 $(document).ready(function() {
     $(document).foundation();
+    // The figure specific nav bar
     $(".fig-nav .extra-info-toggle").click(function() {
       $(this).closest('.container').find('.extra-info').toggle('slow')
       });
+    //The main nav bar
+    var sort_opts = ["Name","Date","Format"];
+    var i;
+    $("#main-nav .top-bar-section .dropdown li a").click(function() {
+      //Hide currently active 
+      for (i = 0; i < sort_opts.length; i++) {
+        if( $(this).text() === sort_opts[i] ) {
+          $("#sort-".concat(sort_opts[i])).show();
+        } else {
+          $("#sort-".concat(sort_opts[i])).hide();
+        }
+      }
+      return false;
+    });
+    $("#reverse-sort").click(function() {
+      //Reverse the active one
+      var list = $("#figures").children("div:visible");
+      var listItems = list.children('div.figure');
+      list.append(listItems.get().reverse());
+      return false;
+    });
 })
 </script>
     {% block head %}
@@ -26,9 +48,11 @@ $(document).ready(function() {
     </div>
     <div id="content">{% block content %}{% endblock %}</div>
     <div id="footer">
-        {% block footer %}
+      {% block footer %}
+      <div class="text-center">
         &copy; Copyright 2015 by <a href="https://github.com/constantAmateur/myfig">Matthew Young</a>.
-        {% endblock %}
+      </div>
+      {% endblock %}
     </div>
 </body>
 </html>

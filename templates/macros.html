@@ -2,26 +2,18 @@
   <tr>
     <th><a href="{{ obj.url }}">{{ obj.name }}</a></th>
     <th> {{ obj.count }} </th>
-    <th> {{ obj.cdate }} </th>
+    <th> {{ obj.human_time() }} ago </th>
   </tr>
- 
-  <!--
-  <div class='row'>
-    <div class='small-2 columns'> {{ obj.count }} </div>
-    <div class='small-3 columns'> Jan 12 19:51 </div>
-    <div class='small-7 columns'><a href="{{ obj.url }}">{{ obj.name }}</a></div>
-  </div>
-  -->
 {%- endmacro %}
 
 {% macro render_figure(obj) -%}
-  <div class='panel radius'>
+  <div class='panel radius figure'>
     <!-- The actual plot -->
     <div class='plot'>
       {% if obj.ftype == '.html' %}
         {{ obj.fig_fh.read()|safe }}
       {% else %}
-        <a href='#' class='th'>
+        <a href="{{ url_for('explicit',path=obj.route) }}" class='th'>
           <img src="{{ obj.fig }}" alt="{{ obj.name }}">
         </a>
       {% endif %}
@@ -45,7 +37,8 @@
             {% if obj.ftype != '.html' %}
               <li><a href="{{ obj.fig }}" data-tooltip title='Download figure.'><i class='fi-download'></i></a></li>
               <li><i class='fi-info extra-info-toggle' data-tooltip title='Toggle extra info.'></i></a></li>
-              <li><a href="" data-tooltip title='Link to this figure.'><i class='fi-link'></i></a></li>
+              <!--<li><a href="{{ url_for('explicit',path=obj.route) }}" data-tooltip title='Link to this figure.'><i class='fi-link'></i></a></li>
+              <li><a href="#" data-tooltip title='Share.'><i class='fi-share'></i></a></li>-->
             {% endif %}
           </ul>
         </section>
@@ -54,7 +47,7 @@
       <hr>
 
       <div class='extra-info' style='display:none;'>
-        Added by {{ obj.mdata['server'].get('source','Unknown') }} at {{ obj.mdata['server']['cdate'] }}. 
+        Added {{ obj.human_time() }} ago by {{ obj.mdata['server'].get('user','a registered user') }}  from {{ obj.mdata['server'].get('source','an unknown server') }}. 
         <hr>
       </div>
 

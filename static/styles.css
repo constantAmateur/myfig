@@ -2,6 +2,12 @@ body {
   background-color: white !important;
 }
 
+/* Add whitespace at top */
+
+.panel.radius.directories {
+  margin-top:1.25rem;
+}
+
 /* Make JS Icons look clickable */
 .extra-info-toggle {
   cursor: pointer;
@@ -25,6 +31,7 @@ body {
 }
 
 
+/* Center figures */
 
 .panel {
   margin: auto;
@@ -38,6 +45,8 @@ body {
 .plot img {
   width:100%
 }
+
+/* Format the nav/title bar for figures */
 
 .fig-nav.top-bar{
   background:none;
@@ -64,81 +73,31 @@ body {
   font-size: 2rem;
   color: black;
 }
-
-/*
-.panel.radius div.container {
-  margin-top: 10px;
+/* Make login form pretty */
+.signup-panel {
+  border-radius: 5px;
+  border: 1px solid #ccc;
+  padding: 15px;
+  margin-top: 30px;
 }
-
-.panel.radius div.container div.small-3.columns {
-  border-left: solid 1px lightgrey;
+.signup-panel i {
+  font-size: 30px;
+  line-height: 50px;
+  color: #999;
 }
-
-.panel.radius div.container i {
-  font-size: 2rem;
-  color: black;
+.signup-panel form input, .signup-panel form span {
+  height: 50px;
 }
-
-.panel.radius .container .row {
-  max-width: 100%;
-}
-
-/*
-.figure .footer {
-  background-color: #FAFAFD;
-  min-width: 100%;
-  border-style: solid;
-  border-width: 2px;
-  border-color: black;
-  border-top: none;
-  color: #777;
-}
-
-.figure .footer .top {
-  width: 100%;
-}
-
-.figure .footer .top .title {
-  text-align:left;
-  width:99%;
-  white-space:nowrap;
-}
-
-.figure .footer .top .nav {
-  text-align:right;
-  border-left: solid 2px black;
-  white-space: nowrap;
-}
-
-.figure .footer .nav {
-  display: -webkit-flex;
-  display: flex;
-  width:100%;
-}
-
-.figure .footer .nav .title {
+.signup-panel .welcome {
+  font-size: 26px;
   text-align: center;
-  text-overflow: ellipsis;
-  overflow:hidden;
-  white-space:nowrap;
-  margin: 10px;
+  margin-left: 0;
 }
-
-.figure .footer .nav .links {
-  border-left: solid 2px black;
-  margin: 10px;
-  width:100px;
-  white-space:nowrap;
+.signup-panel p {
+  font-size: 13px;
+  font-weight: 200;
+  margin-left: 25%;
 }
-
-.download-link {
-  background-image:url(icons/PNG/dark/24px/24_download.png);
-  height:24px;
-  width:24px;
-  text-indent:-9999px;
+.signup-panel .button {
+  margin-left: 35%;
 }
-
-.box {
-  display:inline-block;
-}
-*/
