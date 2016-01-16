@@ -21,13 +21,21 @@ $(document).ready(function() {
       //Hide currently active, set new sort 
       for (i = 0; i < sort_opts.length; i++) {
         if( $(this).text() === sort_opts[i] ) {
-          $("#sort-".concat(sort_opts[i])).show();
+          var node = $("#sort-".concat(sort_opts[i]));
+          node.show();
+          //Get direction from hidden DOM storage
+          if(node.children('.sort-order').text() === 'Ascending') {
+            $("#reverse-sort > a").text('Ascending');
+          } else {
+            $("#reverse-sort > a").text('Descending');
+          }
         } else {
           $("#sort-".concat(sort_opts[i])).hide();
         }
       }
       //Update header
       $("#main-nav .top-bar-section .has-dropdown > a").text("Sort by | ".concat($(this).text()))
+      //Suppress click
       return false;
     });
     $("#reverse-sort").click(function() {
@@ -35,6 +43,14 @@ $(document).ready(function() {
       var list = $("#figures").children("div:visible");
       var listItems = list.children('div.figure');
       list.append(listItems.get().reverse());
+      //Swap ascending and descending
+      if( $("#reverse-sort > a").text() === "Ascending") {
+        $("#reverse-sort > a").text('Descending');
+        list.children(".sort-order").text('Descending')
+      } else {
+        $("#reverse-sort > a").text('Ascending');
+        list.children(".sort-order").text('Ascending')
+      }
       return false;
     });
 })

@@ -23,7 +23,7 @@
             <li><a href="#">Format</a></li>
           </ul>
         </li>
-        <li id='reverse-sort'><a href="#">Reverse</a></li>
+        <li id='reverse-sort'><a href="#">Descending</a></li>
       </ul>
     </section>
   </nav>
@@ -73,16 +73,19 @@
   <!-- Figures in this directory -->
   <div id='figures'>
     <div id='sort-Date'>
+      <div class='sort-order' style='display:none;'>descending</div>
       {% for fig in listing.figures | sort(attribute='cdate',reverse=True) %}
         {{ render_figure(fig) }}
       {% endfor %}
     </div>
     <div id='sort-Name' style='display:none;'>
+      <div class='sort-order' style='display:none;'>descending</div>
       {% for fig in listing.figures | sort(attribute='name',reverse=False) %}
         {{ render_figure(fig) }}
       {% endfor %}
     </div>
     <div id='sort-Format' style='display:none;'>
+      <div class='sort-order' style='display:none;'>descending</div>
       {% for fig in listing.figures | sort(attribute='ftype',reverse=False) %}
         {{ render_figure(fig) }}
       {% endfor %}
