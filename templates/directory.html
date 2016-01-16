@@ -38,11 +38,11 @@
         {% if crumbs|length == 1 %}
         <li class='post-root current'><a href="{{ url_for('explicit',path=crumbs[0][1]) }}">{{ crumbs[0][0] }}</a></li>
         {% else %}
-          <li class='post-root'><a href="{{ url_for('explicit',crumbs[0][1]) }}">{{ crumbs[0][0] }}</a></li>
+          <li class='post-root'><a href="{{ url_for('explicit',path=crumbs[0][1]) }}">{{ crumbs[0][0] }}</a></li>
           {% for crumb in crumbs[1:-1] %}
-            <li><a href="{{ url_for('explicit',crumb[1]) }}">{{ crumb[0] }}</a></li>
+            <li><a href="{{ url_for('explicit',path=crumb[1]) }}">{{ crumb[0] }}</a></li>
           {% endfor %}
-          <li class='current'><a href="{{ url_for('explicit',crumbs[-1][1]) }}">{{ crumbs[-1][0] }}</a></li>
+          <li class='current'><a href="{{ url_for('explicit',path=crumbs[-1][1]) }}">{{ crumbs[-1][0] }}</a></li>
         {% endif %}
       {% endif %}
     </nav>
