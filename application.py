@@ -3,7 +3,7 @@ from flask import request
 from flask import abort
 from flask import render_template,url_for,redirect
 from flask import send_from_directory
-from flask.ext.login import LoginManager, login_required, UserMixin, login_user, logout_user
+from flask.ext.login import LoginManager, login_required, UserMixin, login_user, logout_user,current_user
 from werkzeug import secure_filename
 from passlib.hash import sha256_crypt as pwhash
 import os, json
@@ -186,6 +186,7 @@ def explicit(path):
   if request.method == 'POST':
     print 'Using post'
     print request.files
+    print request.form
     #A valid payload consists of three files, (figure,code,metadata)
     uploaded = request.files
     print request.files.keys()
@@ -196,13 +197,16 @@ def explicit(path):
       #Load the metadata, convert it into a dictionary
       mdata = uploaded.get('mdata')
       mdata = json.loads(mdata.read()) if mdata is not None else {}
+      #If it's uploaded from web interface
+      if hasattr(request,'form') and request.form.get('caption') is not None:
+        mdata['caption']=request.form['caption']
       print mdata
       #Code is completely optional
       code = uploaded.get('code')
       print code
       #Add any extra metadata
       mdata = {'server':{},'client':mdata}
-      mdata['server']['cdate']=dt.now()
+      mdata['server']['cdate']=str(dt.now())
       mdata['server']['user']=current_user.id
       mdata['server']['source'] = get_host(request.remote_addr)
       mdata['server']['uploaded_names']={'figure':figure.filename,
@@ -213,6 +217,7 @@ def explicit(path):
       #Create storage names for all the files
       fnom = secure_filename(figure.filename)
       print 'Secure name is...'
+      print 'path = %s'%path
       #Where to save?
       tgt = os.path.join(path,fnom)
       ftgt = os.path.join(app.config['UPLOAD_FOLDER'],path,fnom)
@@ -243,6 +248,7 @@ def explicit(path):
         code.save(ftgt+'.code')
       return 'Uploaded'
     else:
+      print 'Bad payload.'
       return 'Invalid payload.'
   elif request.method == 'GET':
     tgt = path

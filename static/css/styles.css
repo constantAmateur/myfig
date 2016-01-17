@@ -2,6 +2,12 @@ body {
   background-color: white !important;
 }
 
+/* File upload */
+
+#dz-target {
+  cursor: pointer;
+}
+
 /* Add whitespace at top */
 
 .panel.radius.directories {

@@ -1,15 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="stylesheet" type='text/css' href="{{ url_for('static',filename='styles.css') }}" />
+<meta charset="utf-8">
+  <link rel="stylesheet" type='text/css' href="{{ url_for('static',filename='css/styles.css') }}" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/css/foundation.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/foundicons/3.0.0/foundation-icons.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.0.3/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/foundation/5.5.2/js/foundation.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.8.3/modernizr.js"></script>
+  <script src="{{ url_for('static',filename='js/dropzone.js')}}"></script>
+  <link rel="stylesheet" type='text/css' href="{{ url_for('static',filename='css/dropzone.css') }}" />
   <script>
 $(document).ready(function() {
     $(document).foundation();
+    // File upload
+    Dropzone.options.uploadForm = {
+      maxFiles : 1,
+      paramName : 'figure',
+      clickable : "#dz-target",
+      //Event handling
+      init: function() {
+        this.on('success',function(file,response) { 
+          $("#upload-form div.alert-box.success").show();
+          setTimeout(function() {location.reload()},2000);
+          });
+        },
+    };
+    // Don't know why this isn't in the framework
+    $(".disabled").click(function() {
+      return false;
+      });
     // The figure specific nav bar
     $(".fig-nav .extra-info-toggle").click(function() {
       $(this).closest('.container').find('.extra-info').toggle('slow')
@@ -17,7 +37,8 @@ $(document).ready(function() {
     //The main nav bar
     var sort_opts = ["Name","Date","Format"];
     var i;
-    $("#main-nav .top-bar-section .dropdown li a").click(function() {
+    //$("#main-nav .top-bar-section .dropdown li a").click(function() {
+    $("#sort-options li a").click(function() {
       //Hide currently active, set new sort 
       for (i = 0; i < sort_opts.length; i++) {
         if( $(this).text() === sort_opts[i] ) {
@@ -34,7 +55,8 @@ $(document).ready(function() {
         }
       }
       //Update header
-      $("#main-nav .top-bar-section .has-dropdown > a").text("Sort by | ".concat($(this).text()))
+      //$("#main-nav .top-bar-section .has-dropdown > a").text("Sort by | ".concat($(this).text()))
+      $("#main-nav .top-bar-section .right .has-dropdown > a").text("Sort by | ".concat($(this).text()))
       //Suppress click
       return false;
     });
