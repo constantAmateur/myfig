@@ -1,8 +1,12 @@
 {% extends "base.html" %}
 {% from 'macros.html' import render_figure %}
+{% from 'macros.html' import render_crumbs %}
 {% block title %} Something from path {% endblock %}
 {% block head %}
 {% endblock %}
 {% block content %}
+  <div class="panel radius directories">
+    {{render_crumbs(crumbs)}}
+  </div>
   {{ render_figure(figure) }}
 {% endblock %}

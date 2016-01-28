@@ -8,6 +8,7 @@ from werkzeug import secure_filename
 from passlib.hash import sha256_crypt as pwhash
 import os, json
 import socket
+import shutil
 from datetime import datetime as dt
 import humanize
 app = Flask(__name__)
@@ -26,8 +27,10 @@ def get_host(ip):
 def valid_payload(uploaded):
   if uploaded is None:
     return False
+  #We don't have a figure
   if 'figure' not in uploaded: 
     return False
+  #
   return True
 
 class Figure(object):
@@ -43,10 +46,12 @@ class Figure(object):
     self.name = os.path.basename(tgt)
     self.ftype = os.path.splitext(self.name)[1]
     self.load_object()
+    #Get the current working directory
+    self.cwd = os.path.relpath(os.path.dirname(self.file_target),app.config['UPLOAD_FOLDER'])
+    if self.cwd =='.':
+      self.cwd=''
     #Get the route for this object
-    self.route = os.path.relpath(self.file_target,app.config['UPLOAD_FOLDER'])
-    if self.route == '.':
-      self.route = '/'
+    self.route = os.path.join(self.cwd,self.name)
     #Make certain metadata objects first class objects
     self.cdate = dt.strptime(self.mdata['server']['cdate'],"%Y-%m-%d %H:%M:%S.%f")
     #self.cdate = self.mdata['server']['cdate']
@@ -69,6 +74,19 @@ class Figure(object):
   def human_time(self):
     return humanize.naturaldelta(dt.now()-self.cdate)
 
+  def calculate_crumbs(self):
+    '''
+    Returns a list of the elements and their urls
+    '''
+    dirs = [ x for x in self.route.split('/') if x!='']
+    out = []
+    for i,dd in enumerate(dirs):
+      out.append([dd,'/'.join(['']+dirs[:i+1]+[''])])
+    #Strip the / off the file name
+    out[-1][1]=out[-1][1].strip('/')
+    return out
+
+
  
 class Directory(object):
   '''
@@ -85,7 +103,8 @@ class Directory(object):
     self.count = len(self.figures)
     self.route = os.path.relpath(path,app.config['UPLOAD_FOLDER'])
     if self.route == '.':
-      self.route = '/'
+      self.route = ''
+    self.cwd = self.route
     self.url = url_for('explicit',path=self.route)
     #Add trailing slash for good measure
     if self.url[-1] != '/':
@@ -100,11 +119,21 @@ class Directory(object):
         dd=Directory(d)
         dd.name=os.path.relpath(d,self.path)
         #Update the most recently modified date to be the max of all sub-folders
-        if self.cdate is None or dd.cdate > self.cdate:
+        if dd.cdate is not None and (self.cdate is None or dd.cdate > self.cdate):
           self.cdate = dd.cdate
         #Add in the count for figures in sub-directories
         self.count += dd.count
         self.dirs.append(dd)
+
+  def dir_list(self,parent=True):
+    '''
+    Get directory information for listing
+    '''
+    ret = []
+    if self.route!='/':
+      dd=Directory(self.path+'..')
+
+
 
   def calculate_crumbs(self):
     '''
@@ -117,6 +146,8 @@ class Directory(object):
     return out
 
   def human_time(self):
+    if self.cdate is None:
+      return '--'
     return humanize.naturaldelta(dt.now()-self.cdate)
  
 
@@ -131,41 +162,24 @@ def get_object(tgt):
   except:
     return None
 
-def list_dir(path,include_subdirs=True):
+def archive_figure(tgt):
   '''
-  Gets all the figure objects in this directory and the number
-  of figure objects in subdirectories
+  Try and archive a figure so it won't show up, but still 
+  exists on the file system.
   '''
-  ls = os.listdir(path)
-  print 'HELLO EVERYBODY!',ls
-  figures = [x[:-7] for x in ls if not os.path.isdir(x) and x[-7:]=='.figure']
-  figures = [get_object(os.path.join(path,x)) for x in figures]
-  figures = [x for x in figures if x is not None]
-  print figures,include_subdirs
-  #Want to return a tuple of (name,num_figs,most_recent_addition) for each directory
-  dirs=[]
-  if include_subdirs:
-    print path,ls
-    tmp = [os.path.join(path,x) for x in ls if os.path.isdir(os.path.join(path,x))]
-    print tmp
-    for d in tmp:
-      print d
-      count = 0
-      mod = 0
-      for dir,subdir,files in os.walk(d):
-        fig_files = [x[:-7] for x in files if x[-7:]=='.figure']
-        fig_files = [get_object(os.path.join(dir,x)) for x in fig_files]
-        fig_files = [x for x in fig_files if x is not None]
-        count += len(fig_files)
-        mod = max(mod,max([0]+[os.stat(os.path.join(dir,x.fig)).st_mtime for x in fig_files]))
-      print count,mod
-      dirs.append((d,count,mod))
-  return dirs+figures
-
-#@app.route('/static/<path:path>')
-#def static(path):
-#  return send_from_directory('static',path)
-
+  #Find the next un-used backup path
+  i=1
+  while os.path.isfile(tgt+'.figure.%d'%i):
+    i=i+1
+  #Try and save things for posterity...
+  try:
+    shutil.move(tgt+'.figure',tgt+'.figure.%d'%i)
+    shutil.move(tgt+'.mdata',tgt+'.mdata.%d'%i)
+    shutil.move(tgt+'.code',tgt+'.code.%d'%i)
+  except:
+    #Ah well, we tried, continue and write to the existing location
+    return None
+ 
 @app.route('/ping')
 @login_required
 def pong():
@@ -193,12 +207,52 @@ def explicit(path):
     if valid_payload(uploaded):
       #Figure is mandetory, metadata and code are optional
       figure = uploaded['figure']
+      #Did the web-ui send this?
+      webui=False
+      if hasattr(request,'form') and request.form.get('caption') is not None:
+        webui=True
+      #Work out where we're saving things
+      fnom = secure_filename(figure.filename)
+      #Can we get a new from the web form instead?
+      if webui and request.form.get('filename','')!='':
+        fnom = secure_filename(request.form.get('filename'))
+      print 'Secure name is...'
+      print 'path = %s'%path
+      #Where to save?
+      tgt = os.path.join(path,fnom)
+      ftgt = os.path.join(app.config['UPLOAD_FOLDER'],path,fnom)
+      #Create directory if needed
+      if not os.path.exists(os.path.dirname(ftgt)):
+        os.makedirs(os.path.dirname(ftgt))
+      #Check if the file we're going to save already exists
+      if get_object(tgt) is not None:
+        #Options for resolving are: Overwrite existing, Rename the new one programatically, or abort. 
+        if webui and 'conflictResolution' not in request.args and 'conflictResolution' in request.form:
+          action = request.form['conflictResolution']
+        else:
+          action = request.args.get('conflictResolution','abort')
+        print 'Action is ...'
+        if action == 'overwrite':
+          archive_figure(ftgt)
+        elif action == 'rename':
+          #Here the difference is we keep both files "live", making the new one programatically renamed
+          #Find the next un-used file name
+          orig = tgt
+          i=1
+          while get_object(tgt) is not None:
+            tgt=orig+'.%d'%i
+            i=i+1
+          ftgt = os.path.join(app.config['UPLOAD_FOLDER'],tgt)
+          #Now we have an un-used race, continue
+        else:
+          #Unresolved collision with existing figure...
+          return abort(409)
       print figure
       #Load the metadata, convert it into a dictionary
       mdata = uploaded.get('mdata')
       mdata = json.loads(mdata.read()) if mdata is not None else {}
       #If it's uploaded from web interface
-      if hasattr(request,'form') and request.form.get('caption') is not None:
+      if webui:
         mdata['caption']=request.form['caption']
       print mdata
       #Code is completely optional
@@ -214,29 +268,9 @@ def explicit(path):
               'code':code.filename if code is not None else None
               }
       print mdata
-      #Create storage names for all the files
-      fnom = secure_filename(figure.filename)
-      print 'Secure name is...'
-      print 'path = %s'%path
-      #Where to save?
-      tgt = os.path.join(path,fnom)
-      ftgt = os.path.join(app.config['UPLOAD_FOLDER'],path,fnom)
-      print tgt
-      #Create directory if needed
-      if not os.path.exists(os.path.dirname(ftgt)):
-        os.makedirs(os.path.dirname(ftgt))
-      #Get the first non-colliding object name for this path
-      orig=tgt
-      i=1
-      print 'About to enter infinite loop...'
-      while get_object(tgt) is not None:
-        print tgt
-        tgt=orig+'.%d'%i
-        i=i+1
-      if i!=1:
-        fnom = fnom +'%d'%i
+      #Save things!
       print 'Unambiguous target is...'
-      print fnom,tgt
+      print ftgt,tgt
       #Now save things
       figure.save(ftgt+'.figure')
       print 'saved figure'
@@ -249,23 +283,47 @@ def explicit(path):
       return 'Uploaded'
     else:
       print 'Bad payload.'
-      return 'Invalid payload.'
+      return abort(406)
   elif request.method == 'GET':
     tgt = path
     ftgt = os.path.join(app.config['UPLOAD_FOLDER'],path)
     print tgt
     if os.path.isdir(ftgt):
       #If it's a directory, should end in a slash, redirect if it doesn't
-      if path=='' or path[-1]!='/':
+      if path!='' and path[-1]!='/':
         print 'Missing trailing slash on directory, redirecting...'
-        redirect(url_for('explicit',path=path+'/',**request.args))
+        return redirect(url_for('explicit',path=path+'/',**request.args))
+      #Are we trying to make a directory?
+      if 'mkdir' in request.args:
+        newDir=secure_filename(request.args['mkdir'])
+        #Try making the new directory and then moving to it
+        try:
+          os.mkdir(os.path.join(ftgt,newDir))
+        except:
+          pass
+        newargs={k:v for k,v in request.args.iteritems() if k!='mkdir'}
+        return redirect(url_for('explicit',path=os.path.join(path,newDir)+'/',**newargs))
       #Get figure objects in this directory
       listing = Directory(ftgt,True)
       print listing
       print listing.calculate_crumbs()
-      return render_template('directory.html',listing=listing,crumbs=listing.calculate_crumbs())
+      return render_template('directory.html',listing=listing,crumbs=listing.calculate_crumbs(),cwd=listing.cwd)
     elif get_object(tgt) is not None:
-      return render_template('figure.html',figure=get_object(tgt))
+      #Check if we're trying to delete it
+      print request.args
+      if request.args.get('delete','')=='true':
+        #Which directory are we in?
+        din = get_object(tgt).cwd
+        #Delete the figure
+        print 'Holly shit!  Really deleting it!'
+        archive_figure(ftgt)
+        newargs={k:v for k,v in request.args.iteritems() if k!='delete'}
+        print 'Moving to ',url_for('explicit',path=din,**newargs)
+        #Redirect to the directory listing for this figure
+        return redirect(url_for('explicit',path=din,**newargs))
+      #No deleting, just rendering
+      fig=get_object(tgt)
+      return render_template('figure.html',figure=fig,cwd=fig.cwd,crumbs=fig.calculate_crumbs())
     else:
       abort(404)
 
@@ -335,4 +393,5 @@ def logout():
   return redirect(url_for('login'))
 
 if __name__ == '__main__':
-  app.run()
+  #app.run(host='0.0.0.0',debug=True,ssl_context='adhoc')
+  app.run(debug=True)

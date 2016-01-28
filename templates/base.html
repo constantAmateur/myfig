@@ -30,9 +30,27 @@ $(document).ready(function() {
     $(".disabled").click(function() {
       return false;
       });
+    // Create directory
+    $("#mkdir").click(function() {
+      var url=window.location.href,
+      separator = (url.indexOf("?")===-1)?"?":"&",
+      newParam=separator + "mkdir="+$("#mkdir-name").val();
+      newUrl=url.replace(newParam,"");
+      newUrl+=newParam;
+      window.location.href =newUrl;
+      return false;
+      });
+    // The toggled reveal of delete things
+    $('.del-box1 > a').click(function() {
+      $(this).parent().siblings('.del-show1').show();
+      });
+    $('.del-box2 > a').click(function() {
+      $(this).parent().siblings('.del-show2').show();
+      });
     // The figure specific nav bar
     $(".fig-nav .extra-info-toggle").click(function() {
       $(this).closest('.container').find('.extra-info').toggle('slow')
+      return false;
       });
     //The main nav bar
     var sort_opts = ["Name","Date","Format"];
@@ -84,6 +102,59 @@ $(document).ready(function() {
 <body>
     <div id='header'>
       {% block header %}
+        <div class='fixed' id='main-nav'>
+          <nav class='top-bar' data-topbar data-options="is_hover : false">
+            <ul class="title-area">
+              <li class="name">
+                <h1><a href="{{url_for('explicit',path='/')}}">MYfig</a></h1>
+              </li>
+              <!-- Collapsible Button on small screens: remove the .menu-icon class to get rid of icon. 
+              Remove the "Menu" text if you only want to show the icon -->
+              <li class="toggle-topbar menu-icon"><a href="#"><span>Menu</span></a></li>
+            </ul>
+            <section class="top-bar-section">
+              <ul class='left'>
+                <li><a href="#" data-reveal-id='file-upload'>Add Figure</a></li>
+                <!--<li class="has-dropdown">
+                  <a href="#" data-dropdown='file-upload'>Add Figure</a>
+                </li>-->
+              </ul>
+              <ul class="right">
+                <li class="has-dropdown">
+                  <a href="#" class='disabled'>Sort by | Date</a>
+                  <ul class="dropdown" id='sort-options'>
+                    <li><a href="#">Date</a></li>
+                    <li><a href="#">Name</a></li>
+                    <li><a href="#">Format</a></li>
+                  </ul>
+                </li>
+                <li id='reverse-sort'><a href="#">Descending</a></li>
+              </ul>
+            </section>
+          </nav>
+          <!-- The file upload section -->
+          <div id='file-upload' data-reveal data-options="close_on_background_click:false;close_on_esc:false;" class='reveal-modal xlarge'>
+            <h2>Manually upload figure to <code>/{{ cwd }}</code></h2>
+            <form action="{{ url_for('explicit',path=cwd ) }}" id='upload-form' class='dropzone'>
+              <b>Figure caption:</b>
+                <input type='text' name='caption' value='Uploaded from web-interface.'>
+              <b>Figure filename:</b>
+                <input type='text' name='filename' placeholder='If you want your figure to have a different file name on the server, enter it here.'>
+              <b>If figure already exists:</b>
+              <br>
+                <input type='radio' name='conflictResolution' value='overwrite'> overwrite existing<br>
+                <input type='radio' name='conflictResolution' value='rename'> rename existing <br>
+                <input type='radio' name='conflictResolution' value='abort' checked> return an error <br>
+              <b>Select figure file:</b>
+              <div id='dz-target' class="dz-default dz-message"><span>Drag figure file here or click to select.  Selecting a file will commit your figure, so do this last!</span></div>
+              <!-- Display results -->
+              <div data-alert class='alert-box success' style='display:none;'>
+                <b>Success!</b> Figure uploaded to server.  Reloading listings...
+              </div>
+            </form>
+            <a class="close-reveal-modal">&times;</a>
+          </div>
+        </div>
       {% endblock %}
     </div>
     <div id="content">{% block content %}{% endblock %}</div>

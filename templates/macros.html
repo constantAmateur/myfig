@@ -1,12 +1,33 @@
+{% macro render_crumbs(crumbs) -%}
+    <nav class='breadcrumbs'>
+      <li class='root' data-tooltip title='Root level'><a href="{{ url_for('explicit',path='/') }}">/</a></li>
+      {% if crumbs|length != 0 %}
+        {% if crumbs|length == 1 %}
+        <li class='post-root current'><a href="{{ url_for('explicit',path=crumbs[0][1]) }}">{{ crumbs[0][0] }}</a></li>
+        {% else %}
+          <li class='post-root'><a href="{{ url_for('explicit',path=crumbs[0][1]) }}">{{ crumbs[0][0] }}</a></li>
+          {% for crumb in crumbs[1:-1] %}
+            <li><a href="{{ url_for('explicit',path=crumb[1]) }}">{{ crumb[0] }}</a></li>
+          {% endfor %}
+          <li class='current'><a href="{{ url_for('explicit',path=crumbs[-1][1]) }}">{{ crumbs[-1][0] }}</a></li>
+        {% endif %}
+      {% endif %}
+    </nav>
+{%- endmacro %}
+
 {% macro render_directory(obj) -%}
   <tr>
     <th><a href="{{ obj.url }}">{{ obj.name }}</a></th>
     <th> {{ obj.count }} </th>
-    <th> {{ obj.human_time() }} ago </th>
+    {% if obj.cdate %}
+      <th> {{ obj.human_time() }} ago </th>
+    {% else %}
+      <th> -- </th>
+    {% endif %}
   </tr>
 {%- endmacro %}
 
-{% macro render_figure(obj) -%}
+{% macro render_figure(obj,fig_id) -%}
   <div class='panel radius figure'>
     <!-- The actual plot -->
     <div class='plot'>
@@ -23,11 +44,12 @@
     <div class='container'>
 
       <!-- Title and links -->
-      <nav class='top-bar fig-nav'>
+      <nav class='top-bar fig-nav' data-topbar>
         <ul class='title-area'>
           <li class='name'>
             {{ obj.name }}
           </li>
+
         </ul>
         <section class='top-bar-section'>
           <ul class='right'>
@@ -36,14 +58,12 @@
             {% endif %}
             {% if obj.ftype != '.html' %}
               <li><a href="{{ obj.fig }}" data-tooltip title='Download figure.'><i class='fi-download'></i></a></li>
-              <li><i class='fi-info extra-info-toggle' data-tooltip title='Toggle extra info.'></i></a></li>
-              <!--<li><a href="{{ url_for('explicit',path=obj.route) }}" data-tooltip title='Link to this figure.'><i class='fi-link'></i></a></li>
-              <li><a href="#" data-tooltip title='Share.'><i class='fi-share'></i></a></li>-->
             {% endif %}
+            <li><a href='#' data-tooltip title='Toggle extra info.' class='extra-info-toggle'><i class='fi-info'></i></a></li>
+            <li><a href="#" data-reveal-id='file-removal-{{fig_id}}' data-tooltip title='Delete figure.'><i class='fi-trash'></i></a></li>
           </ul>
         </section>
       </nav>
- 
       <hr>
 
       <div class='extra-info' style='display:none;'>
@@ -57,4 +77,28 @@
 
     </div>
   </div>
+            <!-- The matching modal for delete object -->
+            <div id='file-removal-{{fig_id}}' data-reveal class='reveal-modal fig-del-modal'>
+              <h2> Delete figure <code>/{{obj.route}}</code></h2>
+              <!--<li><a href="#" data-tooltip title='Share.'><i class='fi-share'></i></a></li>-->
+              <div data-alert class='alert-box info del-box1'>
+                Deleting a figure cannot be undone.  Dismiss this warning to continue...
+                <a href='#' class='close'>&times;</a>
+              </div>
+              <div class='del-show1' style='display:none;'>
+                <div data-alert class='alert-box warning del-box2'>
+                  Really? There's no going back... If you're sure dismiss this message too.
+                  <a href='#' class='close'>&times;</a>
+                </div>
+                <div class='del-show2' style='display:none;'>
+                  <div data-alert class='alert-box alert del-box3'>
+                    OK.  You were warned.  Press the button below and the figure will be no more! 
+                  </div>
+                  <a href="{{ url_for('explicit',path=obj.route)}}?delete=true" class='button'>Delete figure {{obj.name}}</a>
+                </div>
+              </div>
+              <a class="close-reveal-modal">&times;</a>
+            </div>
+
+
 {%- endmacro %}

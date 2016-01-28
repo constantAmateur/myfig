@@ -10,14 +10,11 @@ body {
 
 /* Add whitespace at top */
 
-.panel.radius.directories {
-  margin-top:1.25rem;
+#content {
+  padding-top:1.25rem;
 }
 
-/* Make JS Icons look clickable */
-.extra-info-toggle {
-  cursor: pointer;
-}
+
 
 /* Suppress / in first-level of bread-crumbs */
 .breadcrumbs > .post-root:before {
@@ -53,6 +50,14 @@ body {
 }
 
 /* Format the nav/title bar for figures */
+
+/* Make JS Icons look clickable */
+.extra-info-toggle {
+  cursor: pointer;
+}
+
+
+
 
 .fig-nav.top-bar{
   background:none;
